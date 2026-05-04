@@ -2,10 +2,13 @@ import socket
 import re
 import threading
 import os
-import idlelib.k_values
-import idlelib.k_networkin
+try:
+    from idlelib import k_values, k_networkin
+except (ImportError, ModuleNotFoundError):
+    import k_values
+    import k_networkin
 
-PORT = idlelib.k_values.port
+PORT = k_values.port
 storage_path = './downloads'
 if not os.path.exists(storage_path):
     os.mkdir(storage_path)
@@ -19,7 +22,7 @@ class Connection:
 
     def run(self):
         while True:
-            data = self.connection.recv(idlelib.k_values.max_bytes_to_transfer)
+            data = self.connection.recv(k_values.max_bytes_to_transfer)
             if not data:
                 print("Disconnected:", self.address)
                 break
@@ -45,7 +48,7 @@ class Connection:
     def get_file_contents(self, filename: str) -> str:
         path = os.path.join(storage_path, filename)
         if not os.path.exists(path):
-            return idlelib.k_values.null
+            return k_values.null
         with open(path, 'r') as file:
             j = file.read()
         return j
@@ -114,7 +117,7 @@ class Server:
 
 
 servers = []
-HOSTs, SUBNETs = zip(*idlelib.k_networkin.get_ip_and_subnet())
+HOSTs, SUBNETs = zip(*k_networkin.get_ip_and_subnet())
 
 for host in HOSTs:
     server = Server(host, PORT)
