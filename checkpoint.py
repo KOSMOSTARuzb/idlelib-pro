@@ -7,7 +7,6 @@ def create_checkpoint(parent: Path) -> bool:
     if backup_folder.exists():
         print("Backup already exists. Overwriting...")
         remove_checkpoint(parent)
-        return False
 
     shutil.copytree(parent, backup_folder)
     print("Backup created!")

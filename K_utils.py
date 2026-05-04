@@ -87,7 +87,7 @@ def run_injections(destination_path: str, injections: List[Injection]) -> None:
             print("Skipping installation...")
             return
         while True:
-            prompt_answer = input("Do you want to repair the IDLE and reinstall? Enter r to restore only. (Y/n/r)")
+            prompt_answer = input("Do you want to repair the IDLE and reinstall? Enter r to restore only. (Y/n/r): ")
             if prompt_answer.lower() == 'y' or prompt_answer.lower() == 'yes' or prompt_answer.strip() == '':
                 break
             elif prompt_answer.lower() == 'n' or prompt_answer.lower() == 'no':
