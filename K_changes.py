@@ -42,18 +42,7 @@ injections = [
         ),
         Change(
             change_type=ChangeType.ADD_NEXT_LINE,
-            change_query="        self.scriptbinder_k = scriptbinding"
-        )
-    ),
-    Injection(
-        Search(
-        file_path="editor.py",
-        search_type=SearchType.TEXT,
-        search_query="<<run-module>>"
-        ),
-        Change(
-            change_type=ChangeType.ADD_NEXT_LINE,
-            change_query='        text.bind("<<k-upload>>", self.upload_k)\n        text.bind("<<k-upload>>", self.download_k)'
+            change_query='        self.scriptbinder_k = scriptbinding\n        text.bind("<<k-upload>>", self.upload_k)\n        text.bind("<<k-upload>>", self.download_k)'
         )
     ),
     Injection(
