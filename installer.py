@@ -60,6 +60,7 @@ if __name__ == "__main__":
                 print("Getting value of",key_path2)
 
                 idle_path = os.path.dirname(get_reg_value(key_path2, ''))
+                print("Installing:",idle_path)
                 run_injections(idle_path, injections)
             except Exception as e:
                 print(e)
