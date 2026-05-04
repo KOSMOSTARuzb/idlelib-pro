@@ -1,0 +1,20 @@
+    def upload_k(self,_):
+        if self.scriptbinder_k.k_is_output_window():
+            return None
+        existing_text = self.text.get('1.0', END)
+        k_main.upload(existing_text)
+    def download_k(self,_):
+        if self.scriptbinder_k.k_is_output_window():
+            return None
+        existing_text = self.text.get('1.0', END)
+        new_text = k_main.download()
+        if new_text == None:
+            k_main.show_error('Error: Unknown\nFile does not exist.')
+            return None
+        if existing_text.strip():
+            new_combined_text = k_main.comment_code(existing_text, new_text)
+        else:
+            new_combined_text = new_text
+        self.text.delete('1.0', END)
+        self.text.insert(INSERT, new_combined_text)
+        return None
