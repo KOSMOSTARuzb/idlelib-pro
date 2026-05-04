@@ -1,1 +1,5 @@
 /.idea/
+/installer.spec
+/dist/
+/build/
+/.venv/
