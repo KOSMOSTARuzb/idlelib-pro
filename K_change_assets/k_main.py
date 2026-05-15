@@ -19,6 +19,36 @@ is_connecting = False
 disable_next_popup = False
 
 
+def send_msg(sock, msg):
+    # Prefix each message with its length (10 digits)
+    msg_bytes = msg.encode('utf-8')
+    header = f"{len(msg_bytes):010d}".encode('utf-8')
+    sock.sendall(header + msg_bytes)
+
+
+def recv_msg(sock):
+    # Read the 10-byte header
+    header = b''
+    while len(header) < 10:
+        chunk = sock.recv(10 - len(header))
+        if not chunk:
+            return None
+        header += chunk
+    try:
+        msg_len = int(header.decode('utf-8'))
+    except ValueError:
+        return None
+
+    # Read the message content
+    msg = b''
+    while len(msg) < msg_len:
+        chunk = sock.recv(min(msg_len - len(msg), 4096))
+        if not chunk:
+            return None
+        msg += chunk
+    return msg.decode('utf-8')
+
+
 class KeyListner:
     def __init__(self):
         self.listener = Listener(on_press=self.onpress)
@@ -90,6 +120,7 @@ def get_connected(editr=None):
         if HOST == None:
             HOST = k_networkin.scan_network(PORT)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(k_values.connection_timeout)
         s.connect((HOST, PORT))
         is_connected = True
         is_connecting = False
@@ -117,7 +148,11 @@ def uploader(slot: str, content):
             show_error('Not launched, try restarting the app...')
         return False
     content = 'send:' + slot + '\n' + content
-    s.sendall(content.encode('utf-8'))
+    try:
+        send_msg(s, content)
+    except Exception as e:
+        show_error("Failed to save file: " + str(e) + "\n\nYou may safely ignore this error.")
+        return False
     print('done')
     uploading = None
     return True
@@ -148,9 +183,13 @@ def downloader(slot: str):
             show_error('Not launched, try restarting the app...')
         return None
     content = 'recv:' + slot
-    s.sendall(content.encode('utf-8'))
-    print('requested, waiting...')
-    content = s.recv(k_values.max_bytes_to_transfer).decode('utf-8')
+    try:
+        send_msg(s, content)
+        print('requested, waiting...')
+        content = recv_msg(s)
+    except Exception as e:
+        show_error("Download failed: " + str(e))
+        return None
     print('received')
     if content == k_values.null:
         print('Nothing')

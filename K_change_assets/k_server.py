@@ -14,6 +14,36 @@ if not os.path.exists(storage_path):
     os.mkdir(storage_path)
 
 
+def send_msg(sock, msg):
+    # Prefix each message with its length (10 digits)
+    msg_bytes = msg.encode('utf-8')
+    header = f"{len(msg_bytes):010d}".encode('utf-8')
+    sock.sendall(header + msg_bytes)
+
+
+def recv_msg(sock):
+    # Read the 10-byte header
+    header = b''
+    while len(header) < 10:
+        chunk = sock.recv(10 - len(header))
+        if not chunk:
+            return None
+        header += chunk
+    try:
+        msg_len = int(header.decode('utf-8'))
+    except ValueError:
+        return None
+
+    # Read the message content
+    msg = b''
+    while len(msg) < msg_len:
+        chunk = sock.recv(min(msg_len - len(msg), 4096))
+        if not chunk:
+            return None
+        msg += chunk
+    return msg.decode('utf-8')
+
+
 class Connection:
     def __init__(self, conn: socket.socket, addr):
         self.connection = conn
@@ -22,11 +52,10 @@ class Connection:
 
     def run(self):
         while True:
-            data = self.connection.recv(k_values.max_bytes_to_transfer)
-            if not data:
+            text = recv_msg(self.connection)
+            if text is None:
                 print("Disconnected:", self.address)
                 break
-            text = str(data.decode('utf-8'))
             parts = text.split(':', 1)
             command = parts[0]
             if command == 'send':
@@ -38,7 +67,7 @@ class Connection:
             elif command == 'recv':
                 slot = self.validate_filename(parts[1]).strip()
                 content = self.get_file_contents(slot)
-                self.connection.sendall(content.encode('utf-8'))
+                send_msg(self.connection, content)
                 print('File sent:', slot)
 
     def save_to_file(self, filename: str, content: str):
