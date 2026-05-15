@@ -7,7 +7,7 @@ import msvcrt
 from pathlib import Path
 
 from K_changes import injections
-from K_utils import run_injections, check_status
+from K_utils import run_injections, check_status, get_current_path
 from checkpoint import check_checkpoint, restore_checkpoint, create_checkpoint
 
 
@@ -71,7 +71,7 @@ def main(idle_paths):
         print("No paths found to select.")
         return
 
-    version_options = [f"Python {v}" for v in idle_paths.keys()] + ["Exit"]
+    version_options = [f"Python {v}" for v in idle_paths.keys()] + ["Run the Server", "Exit"]
     v_selection = 0
 
     while True:
@@ -92,6 +92,27 @@ def main(idle_paths):
         if selected_label == "Exit":
             os.system('cls')
             print("Installation cancelled.")
+            return
+        
+        elif selected_label == "Run the Server":
+            os.system('cls')
+            print("Launching the Server...")
+
+            server_dir = os.path.join(get_current_path(), "K_change_assets")
+            server_path = os.path.join(server_dir, "k_server.py")
+
+            if server_dir not in sys.path:
+                sys.path.insert(0, server_dir)
+
+            try:
+                with open(server_path, 'r', encoding='utf-8') as f:
+                    code = f.read()
+                    # This turns the current process into the server
+                    exec(code, {'__name__': '__main__', '__file__': server_path})
+                    print("Closed the Server...")
+            except Exception as e:
+                print(f"Failed to launch server: {e}")
+
             return
 
         version_key = selected_label.replace("Python ", "")

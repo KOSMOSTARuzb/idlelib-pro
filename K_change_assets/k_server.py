@@ -3,7 +3,9 @@ import re
 import threading
 import os
 try:
-    from idlelib import k_values, k_networkin
+    import importlib
+    k_values = importlib.import_module('idlelib.k_values')
+    k_networkin = importlib.import_module('idlelib.k_networkin')
 except (ImportError, ModuleNotFoundError):
     import k_values
     import k_networkin
@@ -157,3 +159,7 @@ for host in HOSTs:
     server = Server(host, PORT)
     servers.append(server)
     server.start()
+
+# Block the thread
+for server in servers:
+    server.thread.join()
