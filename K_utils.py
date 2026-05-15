@@ -56,7 +56,7 @@ def run_injection(source_path:str, destination_path: str, injection: Injection) 
             while current_ix > 0:
                 current_ix -= 1
                 if file_contents[current_ix] == '\n':
-                    return current_ix
+                    return current_ix + 1
             return 0
         else:
             assert False, "Unimplemented"
