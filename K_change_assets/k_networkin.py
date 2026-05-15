@@ -4,6 +4,7 @@ import threading
 
 import k_values
 
+scan_found = None
 
 def eliminate(text) -> str:
     j = ''
@@ -68,7 +69,7 @@ def scan_ip(IP: int, port: int) -> bool:
     global scan_found
     ip = to_ip(IP)
     soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket.setdefaulttimeout(k_values.connection_timeout)
+    soc.settimeout(k_values.connection_timeout)
     result = soc.connect_ex((ip, port))
     if result == 0:
         print('Open port found:', ip, ':', port)
@@ -84,8 +85,7 @@ def scan_chunk(start, stop, port):
     print("Scanning range", to_ip(start) + '-' + to_ip(stop) + '...')
     for i in range(start, stop + 1):
         if scan_found == None:
-            threading.Thread()
-            threads.append(threading.Thread(target=lambda: scan_ip(i, port)))
+            threads.append(threading.Thread(target=lambda i=i: scan_ip(i, port)))
             threads[-1].start()
     alive = True
     while alive:

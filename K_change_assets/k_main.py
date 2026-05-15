@@ -73,7 +73,7 @@ def change_editor_state(editr, enable=True):
 
 
 def get_connected(editr=None):
-    global is_connected, HOST, is_connecting
+    global is_connected, HOST, is_connecting, s
     if is_connecting:
         # show_error("Stand by,\n\nLaunching Python Interpreter...")
         if not editr == None:
@@ -89,6 +89,7 @@ def get_connected(editr=None):
     try:
         if HOST == None:
             HOST = k_networkin.scan_network(PORT)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((HOST, PORT))
         is_connected = True
         is_connecting = False
@@ -125,13 +126,12 @@ def uploader(slot: str, content):
 def upload(_: str):
     print("upload command")
     global uploading
-    slot = get_next_key()
     if uploading == None:
-        uploading = threading.Thread(target=lambda: uploader(slot, _))
+        uploading = threading.Thread(target=lambda: uploader(get_next_key(), _))
         uploading.start()
     elif type(uploading) == threading.Thread:
         if not uploading.is_alive():
-            uploading = threading.Thread(target=lambda: uploader(slot, _))
+            uploading = threading.Thread(target=lambda: uploader(get_next_key(), _))
             uploading.start()
         else:
             show_error('Work in progress...\nPlease wait before trying again.')

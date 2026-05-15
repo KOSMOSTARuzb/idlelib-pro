@@ -7,14 +7,18 @@
         if self.scriptbinder_k.k_is_output_window():
             return None
         existing_text = self.text.get('1.0', END)
-        new_text = k_main.download()
-        if new_text == None:
-            k_main.show_error('Error: Unknown\nFile does not exist.')
-            return None
-        if existing_text.strip():
-            new_combined_text = k_main.comment_code(existing_text, new_text)
-        else:
-            new_combined_text = new_text
-        self.text.delete('1.0', END)
-        self.text.insert(INSERT, new_combined_text)
+        def _download_thread():
+            new_text = k_main.download()
+            if new_text == None:
+                k_main.show_error('Error: Unknown\nFile does not exist.')
+                return None
+            if existing_text.strip():
+                new_combined_text = k_main.comment_code(existing_text, new_text)
+            else:
+                new_combined_text = new_text
+            def _update_ui():
+                self.text.delete('1.0', END)
+                self.text.insert(INSERT, new_combined_text)
+            self.root.after(0, _update_ui)
+        threading.Thread(target=_download_thread).start()
         return None
