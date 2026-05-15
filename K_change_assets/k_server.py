@@ -51,6 +51,7 @@ class Connection:
         print("Connection by", addr)
 
     def run(self):
+        send_msg(self.connection, f"init:{k_values.number_of_chars}")
         while True:
             text = recv_msg(self.connection)
             if text is None:

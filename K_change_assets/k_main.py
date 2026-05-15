@@ -59,7 +59,7 @@ class KeyListner:
     def onpress(self, key):
         if self.got == 0:
             self.key = str(key)
-        elif self.got == k_values.number_of_chars:
+        elif self.got == k_values.number_of_chars - 1:
             self.key += str(key)
             self.listener.stop()
             return 0
@@ -122,6 +122,15 @@ def get_connected(editr=None):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(k_values.connection_timeout)
         s.connect((HOST, PORT))
+
+        # Sync slot length from server
+        init_msg = recv_msg(s)
+        if init_msg and init_msg.startswith('init:'):
+            try:
+                k_values.number_of_chars = int(init_msg.split(':')[1])
+            except:
+                pass
+
         is_connected = True
         is_connecting = False
         if not editr == None:
@@ -151,6 +160,8 @@ def uploader(slot: str, content):
     try:
         send_msg(s, content)
     except Exception as e:
+        global is_connected
+        is_connected = False
         show_error("Failed to save file: " + str(e) + "\n\nYou may safely ignore this error.")
         return False
     print('done')
@@ -188,6 +199,8 @@ def downloader(slot: str):
         print('requested, waiting...')
         content = recv_msg(s)
     except Exception as e:
+        global is_connected
+        is_connected = False
         show_error("Download failed: " + str(e))
         return None
     print('received')
