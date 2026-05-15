@@ -149,7 +149,7 @@ def get_connected(editr=None):
 
 
 def uploader(slot: str, content):
-    global uploading
+    global uploading, is_connected
     if slot == 'f7':
         return None
     if not is_connected:
@@ -160,7 +160,6 @@ def uploader(slot: str, content):
     try:
         send_msg(s, content)
     except Exception as e:
-        global is_connected
         is_connected = False
         show_error("Failed to save file: " + str(e) + "\n\nYou may safely ignore this error.")
         return False
@@ -187,6 +186,7 @@ def upload(_: str):
 
 
 def downloader(slot: str):
+    global is_connected
     if slot == 'f8':
         return None
     if not is_connected:
@@ -199,7 +199,6 @@ def downloader(slot: str):
         print('requested, waiting...')
         content = recv_msg(s)
     except Exception as e:
-        global is_connected
         is_connected = False
         show_error("Download failed: " + str(e))
         return None
