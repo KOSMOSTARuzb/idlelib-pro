@@ -3,6 +3,7 @@
             return None
         existing_text = self.text.get('1.0', END)
         k_main.upload(existing_text)
+
     def download_k(self,_):
         if self.scriptbinder_k.k_is_output_window():
             return None
