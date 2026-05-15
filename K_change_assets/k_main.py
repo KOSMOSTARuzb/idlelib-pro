@@ -102,7 +102,11 @@ def change_editor_state(editr, enable=True):
         print(e)
 
 
-def get_connected(editr=None):
+def get_connected(editr=None, run_in_bg=False):
+    if run_in_bg:
+        threading.Thread(target=get_connected, args=(editr, False)).start()
+        return True
+
     global is_connected, HOST, is_connecting, s
     if is_connecting:
         # show_error("Stand by,\n\nLaunching Python Interpreter...")

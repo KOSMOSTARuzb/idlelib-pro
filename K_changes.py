@@ -42,7 +42,7 @@ injections = [
         ),
         Change(
             change_type=ChangeType.ADD_NEXT_LINE,
-            change_query='        self.scriptbinder_k = scriptbinding\n        text.bind("<<k-upload>>", self.upload_k)\n        text.bind("<<k-download>>", self.download_k)'
+            change_query='        self.scriptbinder_k = scriptbinding\n        text.bind("<<k-upload>>", self.upload_k)\n        text.bind("<<k-download>>", self.download_k)' # + '\n        k_main.get_connected(None, True)'
         )
     ),
     Injection(
