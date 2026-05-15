@@ -163,7 +163,7 @@ def uploader(slot: str, content):
     if not is_connected:
         if not get_connected():
             show_error('Not launched, try restarting the app...')
-        return False
+            return False
     content = 'send:' + slot + '\n' + content
     try:
         send_msg(s, content)
@@ -200,7 +200,7 @@ def downloader(slot: str):
     if not is_connected:
         if not get_connected():
             show_error('Not launched, try restarting the app...')
-        return None
+            return None
     content = 'recv:' + slot
     try:
         send_msg(s, content)
