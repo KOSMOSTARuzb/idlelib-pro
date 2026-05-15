@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 from K_types import Injection, SearchType, ChangeType
 from checkpoint import check_checkpoint, restore_checkpoint, create_checkpoint
@@ -77,37 +77,38 @@ def run_injection(source_path:str, destination_path: str, injection: Injection) 
 
 
 def run_injections(destination_path: str, injections: List[Injection]) -> None:
-    if os.path.exists(os.path.join(destination_path, 'kosmostar.py')):
-        print("This app was already installed last year. Please choose `Repair` option in the Python installer.\nSkipping installation...")
-        return
-    if os.path.exists(os.path.join(destination_path, 'modded')):
-        print("This app is already installed.")
-        if not check_checkpoint(Path(destination_path)):
-            print("There seems to be no backups of original IDLE.")
-            print("Skipping installation...")
-            return
-        while True:
-            prompt_answer = input("Do you want to repair the IDLE and reinstall? Enter r to restore only. (Y/n/r): ")
-            if prompt_answer.lower() == 'y' or prompt_answer.lower() == 'yes' or prompt_answer.strip() == '':
-                break
-            elif prompt_answer.lower() == 'n' or prompt_answer.lower() == 'no':
-                print("Skipping installation...")
-                return
-            elif prompt_answer.lower() == 'r':
-                restore_checkpoint(Path(destination_path))
-                print("Skipping installation...")
-                return
-            else:
-                print("Try again...")
-        if restore_checkpoint(Path(destination_path)):
-            print("Proceeding with the installation...")
-        else:
-            return
-    elif os.path.exists(os.path.join(destination_path, 'mod_started')):
-        print("This app is partially installed or corrupted.\nSkipping installation...")
-        return
-    else:
-        create_checkpoint(Path(destination_path))
+    # if os.path.exists(os.path.join(destination_path, 'kosmostar.py')):
+    #     print("This app was already installed last year. Please choose `Repair` option in the Python installer.\nSkipping installation...")
+    #     return
+    # if os.path.exists(os.path.join(destination_path, 'modded')):
+    #     print("This app is already installed.")
+    #     if not check_checkpoint(Path(destination_path)):
+    #         print("There seems to be no backups of original IDLE.")
+    #         print("Skipping installation...")
+    #         return
+    #     while True:
+    #         prompt_answer = input("Do you want to repair the IDLE and reinstall? Enter r to restore only. (Y/n/r): ")
+    #         if prompt_answer.lower() == 'y' or prompt_answer.lower() == 'yes' or prompt_answer.strip() == '':
+    #             break
+    #         elif prompt_answer.lower() == 'n' or prompt_answer.lower() == 'no':
+    #             print("Skipping installation...")
+    #             return
+    #         elif prompt_answer.lower() == 'r':
+    #             restore_checkpoint(Path(destination_path))
+    #             print("Skipping installation...")
+    #             return
+    #         else:
+    #             print("Try again...")
+    #     if restore_checkpoint(Path(destination_path)):
+    #         print("Proceeding with the installation...")
+    #     else:
+    #         return
+    # elif os.path.exists(os.path.join(destination_path, 'mod_started')):
+    #     print("This app is partially installed or corrupted.\nSkipping installation...")
+    #     return
+    # else:
+    #     create_checkpoint(Path(destination_path))
+    #
 
 
     Path(os.path.join(destination_path, 'mod_started')).touch(exist_ok=False)
@@ -117,6 +118,31 @@ def run_injections(destination_path: str, injections: List[Injection]) -> None:
         print("Done")
     Path(os.path.join(destination_path, 'modded')).touch()
 
+
+def check_status(destination_path: str) -> Tuple[str, str | None]:
+    path_obj = Path(destination_path)
+    has_backups = check_checkpoint(path_obj)
+    is_ancient_version = os.path.exists(os.path.join(destination_path, 'kosmostar.py'))
+    is_modded = os.path.exists(os.path.join(destination_path, 'modded'))
+    is_mod_started = os.path.exists(os.path.join(destination_path, 'mod_started'))
+
+    error_message = None
+
+    status = "[ORIGINAL]"
+    if is_ancient_version:
+        status = "[OUTDATED_VERSION]"
+        error_message = "This app was already installed last year. Please choose `Repair` option in the Python installer.\nSkipping installation..."
+    elif is_modded:
+        if has_backups:
+            status = "[INSTALLED]"
+        else:
+            status = "[INSTALLED_WITHOUT_BACKUP]"
+            error_message = "There seems to be no backups of original IDLE."
+    elif is_mod_started:
+        status = "[UNFINISHED_INSTALLATION]"
+        error_message = "This app is partially installed or corrupted.\nSkipping installation..."
+
+    return status, error_message
 
 def get_current_path()->str:
     data_dir: str
