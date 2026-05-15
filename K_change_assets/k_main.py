@@ -59,7 +59,7 @@ class KeyListner:
     def onpress(self, key):
         if self.got == 0:
             self.key = str(key)
-        elif self.got == k_values.number_of_chars - 1:
+        elif self.got == k_values.number_of_chars: # if it works don't touch it.
             self.key += str(key)
             self.listener.stop()
             return 0
