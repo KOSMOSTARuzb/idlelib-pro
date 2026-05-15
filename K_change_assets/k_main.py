@@ -123,13 +123,17 @@ def get_connected(editr=None):
         s.settimeout(k_values.connection_timeout)
         s.connect((HOST, PORT))
 
-        # Sync slot length from server
-        init_msg = recv_msg(s)
-        if init_msg and init_msg.startswith('init:'):
-            try:
-                k_values.number_of_chars = int(init_msg.split(':')[1])
-            except:
-                pass
+        # Sync slot length from server (backward compatible)
+        try:
+            send_msg(s, "info")
+            info_msg = recv_msg(s)
+            if info_msg:
+                for line in info_msg.splitlines():
+                    if line.startswith('count:'):
+                        k_values.number_of_chars = int(line.split(':')[1])
+                        break
+        except:
+            pass
 
         is_connected = True
         is_connecting = False

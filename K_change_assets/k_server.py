@@ -51,7 +51,6 @@ class Connection:
         print("Connection by", addr)
 
     def run(self):
-        send_msg(self.connection, f"init:{k_values.number_of_chars}")
         while True:
             text = recv_msg(self.connection)
             if text is None:
@@ -70,6 +69,11 @@ class Connection:
                 content = self.get_file_contents(slot)
                 send_msg(self.connection, content)
                 print('File sent:', slot)
+            elif command == 'info':
+                params = [
+                    f"count:{k_values.number_of_chars}",
+                ]
+                send_msg(self.connection, "\n".join(params))
 
     def save_to_file(self, filename: str, content: str):
         with open(os.path.join(storage_path, filename), 'w') as file:
